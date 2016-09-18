@@ -1,4 +1,13 @@
-use ../data/nlrb0509.dta
+************************************
+* Script for creating the old R-case archive. I have not included the
+* raw data that this script processes, because the original files are
+* quite large. Nonetheless it might be of interest to see how this
+* file was created, and for that reason I post this here.
+************************************
+
+!unzip nlrb_old_cases.txt.zip
+infix using nlrb_old_rcases.dct, using(nlrb_old_cases.txt)
+
 label define yesno 1 "Yes" 0 "No"
 
 * nlrb_id will be the unique identifier, though later we'll drop several
@@ -583,7 +592,6 @@ drop ln cn db_match_confidence_level
 
 drop if mi(nlrb_id)
 
-
 replace state = "IL" if state == "Il"
 replace state = "" if state == "NULL"
 replace state = "" if state == "GQ"
@@ -592,14 +600,9 @@ replace state = "" if state == "ML"
 replace state = "" if state == "NB"
 replace state = "" if state == "PQ"
 
-save ../data/nlrb0509_temp.dta, replace
-* use ../data/nlrb0509_temp.dta
-
 drop if state == "GU" | state == "VI" | state == "PR"
 sort nlrb_id
 drop if nlrb_id == 1
-* We appear to be missing the nlrb0509_coded_cities.dta file, which is BAD
-* However, we have the ultimate data file at the end of this script.
 merge 1:1 nlrb_id using ../data/nlrb0509_coded_cities
 drop if _merge == 1
 drop _merge
@@ -615,11 +618,3 @@ drop state_alpha2
 compress
 
 save ../data/nlrb_representation_1961_1998.dta, replace
-!rm ../data/gnis_addresses.dta
-!rm ../data/nlrb0509_address.dta
-!rm ../data/nlrb0509_coded_cities.dta
-!rm ../data/nlrb0509_temp.dta
-!rm GOVT_UNITS_20130811.txt
-!rm POP_PLACES_20130811.txt
-
-
